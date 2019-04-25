@@ -16,7 +16,8 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 export default class QRcodeApp extends Component {
   
   onSuccess(e) {
-    console.log(e.data)
+    const qrdata=e.data;
+    console.log(qrdata)
     fetch('https://aiattendance.com/verifyqrcode', {
       method: 'POST',
       headers: {
@@ -36,7 +37,7 @@ export default class QRcodeApp extends Component {
         const resetAction = StackActions.reset({
           index: 0,
           actions: [
-            NavigationActions.navigate({ routeName: 'SelfieScreen' })
+            NavigationActions.navigate({ routeName: 'SelfieScreen',params:{key:qrdata} })
           ]
           });
         this.props.navigation.dispatch(resetAction);

@@ -10,6 +10,11 @@ export default class CameraApp extends Component {
 
     this.state = {
         count: 0,
+        key:this.props.navigation.getParam('key', 'No key'),
+        rectangles:[
+
+        ]
+
     }
   }
   componentWillMount(){
@@ -24,6 +29,25 @@ export default class CameraApp extends Component {
     navigation.addListener('willBlur', () =>
       this.setState({ focusedScreen: false })
     );
+  }
+  renderRectangles(){
+    const {rectangles}=this.state;
+    const views=[]
+    rectangles.forEach((rect)=>{
+      const styles={
+        position:'absolute',
+        top:10,
+        left:10,
+        height:100,
+        width:100,
+        borderWidth:2,
+        borderColor: 'crimson',
+        flexDirection:'column'
+      }
+      views.push(<View style={styles} key={rect.callName}><Text>{rect.callName}</Text></View>)
+      console.log(rect);
+    });
+    return views
   }
   cameraView(){
     return (
@@ -41,19 +65,19 @@ export default class CameraApp extends Component {
               buttonNegative: 'Cancel',
             }}
             captureAudio={false}
+            
           />
           <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
             <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture}>
               <Text style={{ fontSize: 14 }}> SNAP </Text>
             </TouchableOpacity>
           </View>
+          {this.renderRectangles()}
         </View>
     );
   }
   render() {
     const { hasCameraPermission, focusedScreen } = this.state;
-
-   
     if (focusedScreen){
       return (this.cameraView());
     } else {
@@ -63,10 +87,33 @@ export default class CameraApp extends Component {
   }
 
   takePicture = async function() {
+    const qrcode = this.state.key;
+    console.log("qrcode => "+qrcode)
     if (this.camera) {
-      const options = { quality: 0.5, base64: true };
+      const options = { quality: 0.5, base64: true,pauseAfterCapture:true, orientation:'landscapeLeft'};
       const data = await this.camera.takePictureAsync(options);
-      console.log(data.uri);
+      console.log(data);
+      fetch('https://aiattendance.com/identify', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          key: qrcode,
+          img: data.base64
+        }),
+      })
+      .then(async (response)=>{
+        const text = await response.text();
+        console.log("55555555555555555555")
+        const rectangles=JSON.parse(text)
+        console.log(rectangles)
+        this.setState({rectangles})
+      })
+      .catch((error)=>{
+          console.log(error)
+      })
     }
   };
 }
