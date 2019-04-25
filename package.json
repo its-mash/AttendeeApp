@@ -10,7 +10,9 @@
     "react": "16.8.3",
     "react-native": "0.59.5",
     "react-native-camera": "git+https://git@github.com/react-native-community/react-native-camera.git",
-    "react-native-qrcode-scanner": "^1.1.2"
+    "react-native-gesture-handler": "^1.1.0",
+    "react-native-qrcode-scanner": "^1.1.2",
+    "react-navigation": "^3.9.0"
   },
   "devDependencies": {
     "@babel/core": "7.4.3",

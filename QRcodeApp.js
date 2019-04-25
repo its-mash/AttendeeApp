@@ -1,6 +1,7 @@
 'use strict';
 
 import React, { Component } from 'react';
+import {  StackActions,NavigationActions } from 'react-navigation'
 
 import {
   AppRegistry,
@@ -12,13 +13,10 @@ import {
 
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
-export default class App extends Component {
-
+export default class QRcodeApp extends Component {
+  
   onSuccess(e) {
-    console.log(e)
-    // Linking
-    //   .openURL(e.data)
-    //   .catch(err => console.error('An error occured', err));
+    console.log(e.data)
     fetch('https://aiattendance.com/verifyqrcode', {
       method: 'POST',
       headers: {
@@ -29,13 +27,22 @@ export default class App extends Component {
         key: e.data,
       }),
     })
-    .then((res)=>{
-      // console.log("55555555555555555555")
-      // console.log(res);
-      if(res=="valid")
-        console.log("valid QR code")
+    .then(async (response)=>{
+      const text = await response.text();
+      console.log("55555555555555555555")
+      console.log(text);
+      if (text == "valid") {
+        console.log("valid QR  code");
+        const resetAction = StackActions.reset({
+          index: 0,
+          actions: [
+            NavigationActions.navigate({ routeName: 'SelfieScreen' })
+          ]
+          });
+        this.props.navigation.dispatch(resetAction);
+      }
       else
-        console.log("invalid QR code")
+        console.log("invalid QR code");
     })
     .catch((error)=>{
         console.log(error)
