@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 import {  StackActions,NavigationActions } from 'react-navigation'
-
+import Orientation from 'react-native-orientation';
 import {
   AppRegistry,
   StyleSheet,
@@ -14,7 +14,10 @@ import {
 import QRCodeScanner from 'react-native-qrcode-scanner';
 
 export default class QRcodeApp extends Component {
-  
+  constructor(props){
+    super(props)
+    Orientation.lockToPortrait()
+  }
   onSuccess(e) {
     const qrdata=e.data;
     console.log(qrdata)
@@ -49,7 +52,9 @@ export default class QRcodeApp extends Component {
         console.log(error)
     })
   }
-
+  componentWillMount(){
+    
+  }
   render() {
     return (
       <QRCodeScanner
