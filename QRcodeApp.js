@@ -16,7 +16,7 @@ import QRCodeScanner from 'react-native-qrcode-scanner';
 export default class QRcodeApp extends Component {
   constructor(props){
     super(props)
-    Orientation.lockToPortrait()
+    // Orientation.lockToPortrait()
   }
   onSuccess(e) {
     const qrdata=e.data;
@@ -53,7 +53,7 @@ export default class QRcodeApp extends Component {
     })
   }
   componentWillMount(){
-    
+    Orientation.lockToPortrait() 
   }
   render() {
     return (

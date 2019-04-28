@@ -8,7 +8,7 @@ import {Dimensions } from "react-native";
 export default class CameraApp extends Component {
   constructor(props){
     super(props);
-    Orientation.lockToLandscape()
+    // Orientation.lockToLandscape()
     this.state = {
         count: 0,
         key:this.props.navigation.getParam('key', 'No key'),
@@ -19,7 +19,7 @@ export default class CameraApp extends Component {
     }
   }
   componentWillMount(){
-     
+     Orientation.lockToLandscape()
   }
   componentDidMount() {
     
@@ -34,6 +34,7 @@ export default class CameraApp extends Component {
   renderRectangles(){
     const {rectangles}=this.state;
     const views=[]
+    if(rectangles)
     rectangles.forEach((rect)=>{
       const styles={
         position:'absolute',
@@ -43,15 +44,73 @@ export default class CameraApp extends Component {
         width:rect.width,
         borderWidth:1,
         borderColor: 'crimson',
-        flexDirection:'column'
+        flexDirection:'column',
+        justifyContent:'center',
+        zIndex:4
       }
-      views.push(<View style={styles} key={rect.callName}><Text>{rect.callName}</Text></View>)
+      views.push(<View style={styles} key={rect.callName}><Text style={{textAlign:'center',color:'green',fontSize:25,justifyContent:'center' }}>{rect.callName}</Text></View>)
       console.log(rect);
     });
     return views
   }
+  retake(){
+    this.setState({rectangles:[],submit:false})
+    this.camera.resumePreview()
+  }
+  submit(){
+    const {rectangles}=this.state;
+    const qrcode = this.state.key;
+    const personId=[]
+    rectangles.forEach(rect=>personId.push(rect.id))
+    console.log(personId)
+    console.log("submitting");
+    fetch('https://aiattendance.com/record', {
+        method: 'POST',
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          key:qrcode,
+          ids:personId
+        }),
+      })
+      .then(async (response)=>{
+        const text = await response.text();
+        console.log(text)
+      })
+      .catch((error)=>{
+          console.log(error)
+      })
+  }
+  renderButton(){
+    const {submit}=this.state;
+    if(submit){
+      return(
+        <View style={{ flex:1, height:'100%',flexDirection:'column',position: 'absolute',justifyContent:'center'}}>
+          <View style={{ flex:0,zIndex:5}}>
+                <TouchableOpacity onPress={this.retake.bind(this)} style={styles.capture}>
+                  <Text style={{ fontSize: 14 }}> Retake </Text>
+                </TouchableOpacity>
+          </View>
+          <View style={{flex:0,zIndex:5}}>
+                  <TouchableOpacity onPress={this.submit.bind(this)} style={styles.capture}>
+                    <Text style={{ fontSize: 14 }}> Submit </Text>
+                  </TouchableOpacity>
+          </View>
+        </View>
+      )
+    }
+    else
+     return(
+      <View style={{ flex:1, height:'100%',flexDirection:'column',position: 'absolute',justifyContent:'center',zIndex:5}}>
+              <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture}>
+                <Text style={{ fontSize: 14 }}> SNAP </Text>
+              </TouchableOpacity>
+      </View>
+    )
+  }
   cameraView(){
-    const {screenWidth,screenHeight}=this.state;
     return (
         <View style={styles.container}>
           <StatusBar hidden={true}/>
@@ -71,12 +130,9 @@ export default class CameraApp extends Component {
             zoom={0}
             ratio="16:9"
           />
-          <View style={{ justifyContent: 'center', position: 'absolute',right:5, height: '100%'}}>
-            <TouchableOpacity onPress={this.takePicture.bind(this)} style={styles.capture}>
-              <Text style={{ fontSize: 14 }}> SNAP </Text>
-            </TouchableOpacity>
-          </View>
           {this.renderRectangles()}
+          {this.renderButton()}
+    
         </View>
     );
   }
@@ -115,11 +171,18 @@ export default class CameraApp extends Component {
         console.log("55555555555555555555")
         const rectangles=JSON.parse(text)
         console.log(rectangles)
-        this.setState({rectangles})
+        if(rectangles!=undefined || rectangles.length!=0)
+          this.setState({rectangles,submit:true})
+        else{
+          console.log("No face found, resuming")
+          console.log(this.camera.resumePreview())
+        }
+          
       })
       .catch((error)=>{
           console.log(error)
       })
+      
     }
   };
 }
@@ -129,6 +192,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     backgroundColor: 'black',
+    justifyContent: 'flex-end'
   },
   preview: {
     flex: 1,
