@@ -1,4 +1,5 @@
 {
   "name": "AttendeeApp",
-  "displayName": "AttendeeApp"
+  "displayName": "AttendeeApp",
+  "API_URL": "https://sierrasolver.nafqa.com"
 }

@@ -3,6 +3,8 @@
 import React, { Component } from 'react';
 import {  StackActions,NavigationActions } from 'react-navigation'
 import Orientation from 'react-native-orientation';
+import {API_URL as url} from './app.json';
+
 import {
   AppRegistry,
   StyleSheet,
@@ -21,7 +23,7 @@ export default class QRcodeApp extends Component {
   onSuccess(e) {
     const qrdata=e.data;
     console.log(qrdata)
-    fetch('https://aiattendance.com/verifyqrcode', {
+    fetch(url+'/verifyqrcode', {
       method: 'POST',
       headers: {
         Accept: 'application/json',

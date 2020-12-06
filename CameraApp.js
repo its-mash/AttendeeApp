@@ -5,6 +5,8 @@ import { RNCamera } from 'react-native-camera';
 import {  StackActions,NavigationActions } from 'react-navigation'
 import Orientation from 'react-native-orientation';
 import {Dimensions } from "react-native";
+import {API_URL as url} from './app.json';
+
 export default class CameraApp extends Component {
   constructor(props){
     super(props);
@@ -64,7 +66,7 @@ export default class CameraApp extends Component {
     rectangles.forEach(rect=>personId.push(rect.id))
     console.log(personId)
     console.log("submitting");
-    fetch('https://aiattendance.com/record', {
+    fetch(url+'/record', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
@@ -155,7 +157,7 @@ export default class CameraApp extends Component {
       const options = { quality: 1, base64: true,pauseAfterCapture:true,width:screenHeight,height:screenWidth,mirrorImage:true};
       const data = await this.camera.takePictureAsync(options);
       console.log(data.width+"xxxx"+data.height);
-      fetch('https://aiattendance.com/identify', {
+      fetch(url+'/identify', {
         method: 'POST',
         headers: {
           Accept: 'application/json',
